@@ -2,18 +2,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define INTEGER_OF_UNIVERCE 100
+#define BUFF_SIZE 100
 #define SUCCESS 0
+#define ERROR_RET_VAL -1
 
-void create_buffer() {
-    int size = INTEGER_OF_UNIVERCE;
+int create_buffer() {
+    int size = BUFF_SIZE;
     const char* phrase = "hello world";
 
   
     char* buff1 = (char*)malloc(size);
     if (buff1 == NULL) {
         perror("Error of allocation memory: buff1\n");
-        return;
+        return ERROR_RET_VAL;
     }
     strcpy(buff1, phrase);
 
@@ -26,19 +27,25 @@ void create_buffer() {
     char* buff2 = (char*)malloc(size);
     if (buff2 == NULL) {
         perror("Error of allocation memory: buff2\n");
-        return;
+        return ERROR_RET_VAL;
     }
     strcpy(buff2, phrase);
 
     printf("Buffer2 phrase before free: %s\n", buff2);
 
     char* cursor_buff2 = buff2 + (size / 2);
-    free(cursor_buff2);
+    free(cursor_buff2); 
 
     printf("Buffer2 phrase after free: %s\n", buff2);
+    return SUCCESS;
 }
 
 int main() {
-    create_buffer();
-    return SUCCESS;
+    int func_val = create_buffer();
+
+    if (func_val == ERROR_RET_VAL) {
+        fprintf(stderr, "Error in func: create_buffer()");
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
 }
