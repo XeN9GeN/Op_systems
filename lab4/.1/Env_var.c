@@ -2,32 +2,35 @@
 #include <stdlib.h>
 
 #define SUCCESS 0
+#define ERROR_RET_VAL -1
 
-void env() {
+int env() {
     const char* var_name = "ENVIR_VAR";
 
  
     char* val = getenv(var_name);
     if (val == NULL) {
-        printf("Enviroment var didnt set\n");
+        fprintf(stderr, "Environment var %s not set\n", var_name);
+        return ERROR_RET_VAL;
     }
-    else {
-        printf("Cur val of env: %s\n", val);
-    }
+    printf("Initial env value: %s\n", val);
 
-    //setenv(var_name, "ChangedByProgram", 1); - linux
-    _putenv_s(var_name, "ChangedByProgram");// - windows
+    if (setenv(var_name, "ChangedByProgram", 1) == ERROR_RET_VAL) {
+        perror("setenv failed");
+        return ERROR_RET_VAL;
+    }
 
     val = getenv(var_name);
-    if (val == NULL) {
-        printf("Enviroment var didnt set\n");
-    }
-    else {
-        printf("Cur val of env: %s\n", val);
-    }
+    printf("New env value: %s\n", val);
+    return SUCCESS;
+
 }
 
 int main() {
-    env();
-    return SUCCESS;
+    int env_func_return_val = env();
+    if (env_func_return_val == ERROR_RET_VAL) {
+        fprintf(stderr, "Error in func env()\n");
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
 }
