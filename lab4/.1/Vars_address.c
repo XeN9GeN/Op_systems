@@ -32,8 +32,6 @@ int main() {
     printf("global const address: %p\n", (void*)&global_const);
 
     variables();
-
-
    
-    return SUCCESS;
+    return EXIT_SUCCESS;
 }
