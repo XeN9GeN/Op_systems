@@ -3,6 +3,7 @@
 
 #define SUCCESS 0
 #define ERROR_RET_VAL -1
+#define OVERWRITE 1
 
 int env() {
     const char* var_name = "ENVIR_VAR";
@@ -15,12 +16,18 @@ int env() {
     }
     printf("Initial env value: %s\n", val);
 
-    if (setenv(var_name, "ChangedByProgram", 1) == ERROR_RET_VAL) {
+    int setenv_result = setenv(var_name, "ChangedByProgram", OVERWRITE);
+    if (setenv_result == ERROR_RET_VAL) {
         perror("setenv failed");
         return ERROR_RET_VAL;
     }
 
     val = getenv(var_name);
+    if (val == NULL) {
+        fprintf(stderr, "Error: Environment var %s disappeared after setting\n", var_name);
+        return ERROR_RET_VAL;
+    }
+
     printf("New env value: %s\n", val);
     return SUCCESS;
 
