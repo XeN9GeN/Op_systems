@@ -10,19 +10,24 @@
 #define SUCCESS 1
 #define Daughter 0
 #define Success_ret_val 0
-#define EXIT_INVALID_CONFIG 5 
+#define EXIT_VALID_CONFIG 5 
 
 int global_var = 20;
 
 
-int print_parent_initial_info(int local_var) {
+int print_parent_initial_info(int *local_var) {
+	if (local_var == NULL) {
+		return FAILURE;
+	}
+
 	printf("[P] global var: adress = %p, value = %d\n", (void*)&global_var, global_var);
-	printf("[P] local var: adress = %p, value = %d\n", (void*)&local_var, local_var);
+	printf("[P] local var: adress = %p, value = %d\n", (void*)local_var, *local_var);
 
 	pid_t parent_pid = getpid();
 	printf("[P] my pid = %d\n\n", parent_pid);
 
-	if (fflush(stdout) != Success_ret_val) {
+	int fflush_ret_val = fflush(stdout);
+	if (fflush_ret_val != Success_ret_val) {
 		perror("Error in fflush");
 		return FAILURE;
 	}
@@ -42,12 +47,13 @@ int run_child_logic(int local_var) {
 	printf("[D, after change] global var: adress = %p, value = %d\n", (void*)&global_var, global_var);
 	printf("[D, after change] local var: adress = %p, value = %d\n", (void*)&local_var, local_var);
 
-	if (fflush(stdout) != Success_ret_val) {
+	int fflush_ret_val = fflush(stdout);
+	if (fflush_ret_val != Success_ret_val) {
 		perror("Error in fflush");
 		return FAILURE;
 	}
 
-	exit(EXIT_INVALID_CONFIG);
+	exit(EXIT_VALID_CONFIG);
 }
 
 int run_parent_logic(int local_var) {
@@ -85,24 +91,27 @@ int run_parent_logic(int local_var) {
 int main() {
 	int local_var = 10;
 
-	if (print_parent_initial_info(local_var) == FAILURE) {
-		return FAILURE;
+	int func_ret_val = print_parent_initial_info(&local_var);
+	if (func_ret_val == FAILURE) {
+		return EXIT_FAILURE;
 	}
 
 	pid_t pid = fork();
 	if (pid == error_ret_val) {
 		perror("Ошибка fork");
-		return FAILURE;
+		return EXIT_FAILURE;
 	}
 
 	if (pid == Daughter) {
-		if (run_child_logic(local_var) == FAILURE) {
-			return FAILURE;
+		int child_func_ret_val = run_child_logic(local_var);
+		if (child_func_ret_val == FAILURE) {
+			return EXIT_FAILURE;
 		}
 	}
 	else {
-		if (run_parent_logic(local_var) == FAILURE) {
-			return FAILURE;
+		int parent_func_ret_val = run_parent_logic(local_var);
+		if (parent_func_ret_val == FAILURE) {
+			return EXIT_FAILURE;
 		}
 	}
 
